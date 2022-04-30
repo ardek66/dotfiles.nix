@@ -7,12 +7,12 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = nixpkgs.legacyPackages.${system}; in
       rec {
-        dotfiles = pkgs.symlinkJoin {
-          name = "dotfiles";
-          paths = [ ./xmonad ./nyxt ];
+        devShell = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            (haskellPackages.ghcWithPackages (p: [ p.hlint
+                                                   p.haskell-language-server
+                                                   p.xmonad p.xmonad-contrib ]))
+          ];
         };
-
-        overlay = final: prev: { dotfiles = prev.dotfiles; };
-        defaultPackage = dotfiles;
       });
 }
