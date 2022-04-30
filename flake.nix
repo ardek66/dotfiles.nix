@@ -10,7 +10,6 @@
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
             (haskellPackages.ghcWithPackages (p: [ p.hlint
-                                                   p.haskell-language-server
                                                    p.xmonad p.xmonad-contrib ]))
           ];
         };
