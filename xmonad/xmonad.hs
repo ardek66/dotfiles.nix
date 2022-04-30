@@ -7,8 +7,8 @@ import XMonad.Util.Run
 import XMonad.Util.SpawnOnce
 import XMonad.Util.EZConfig
 import XMonad.Layout.IndependentScreens
-import XMonad.Layout.ThreeColumns
-import XMonad.Layout.Tabbed
+import XMonad.Layout.SubLayouts
+import XMonad.Layout.WindowNavigation
 import XMonad.Layout.NoBorders
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
@@ -27,11 +27,9 @@ conf' = docks def
     workspaces = withScreens 2 $ map show [1..9],
     startupHook = spawnOnce "nix-shell /mnt/files/src/haskell.nix --run 'emacs --daemon=xmonad'",
     manageHook = insertPosition Below Newer <+> manageDocks <+> manageHook',
-    layoutHook = avoidStruts . smartBorders $
-                 layoutTall
+    layoutHook = avoidStruts . smartBorders
+                 $ subTabbed layoutTall
                  ||| Mirror layoutTall
-                 ||| simpleTabbed
-                 ||| ThreeCol 1 (1/20) (1/2)
   }
   where
     layoutTall = Tall 1 (3/100) (1/2)
