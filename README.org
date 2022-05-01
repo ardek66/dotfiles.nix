@@ -1,0 +1,6 @@
+* Dotfiles.nix
+
+Nix flake implementing a development environment for the configuration files
+and a Home Manager module for making them available to the sytem.
+
+Currently implements a development environment for my XMonad config.
