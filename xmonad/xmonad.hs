@@ -25,7 +25,6 @@ conf' = docks def
     normalBorderColor = "#1d2021",
     focusedBorderColor = "#d79921",
     workspaces = withScreens 2 $ map show [1..9],
-    startupHook = spawnOnce "nix-shell /mnt/files/src/haskell.nix --run 'emacs --daemon=xmonad'",
     manageHook = insertPosition Below Newer <+> manageDocks <+> manageHook',
     layoutHook = avoidStruts . smartBorders
                  $ subTabbed layoutTall

@@ -7,10 +7,14 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = nixpkgs.legacyPackages.${system}; in
       rec {
+        nixosModule = import ./module.nix;
+        
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
-            (haskellPackages.ghcWithPackages (p: [ p.hlint
-                                                   p.xmonad p.xmonad-contrib ]))
+            (haskellPackages.ghcWithPackages (p: [
+              p.hlint
+              p.xmonad p.xmonad-contrib
+            ]))
           ];
         };
       });
