@@ -48,7 +48,14 @@
 
         devShell = pkgs.haskellPackages.shellFor {
           packages = p: [ packages.xmonad p.xmonad-contrib ];
-          buildInputs = with pkgs.haskellPackages; [ cabal-install haskell-language-server ];
+          buildInputs = with pkgs.haskellPackages;
+            [
+              cabal-install
+              ghcid
+              hlint
+              ormolu
+              haskell-language-server
+            ];
         };
       });
 }
