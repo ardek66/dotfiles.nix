@@ -10,6 +10,8 @@ import XMonad.Layout.IndependentScreens
 import XMonad.Layout.SubLayouts
 import XMonad.Layout.WindowNavigation
 import XMonad.Layout.NoBorders
+import XMonad.Layout.BoringWindows
+import XMonad.Layout.Simplest
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
@@ -26,12 +28,12 @@ conf' = docks def
     focusedBorderColor = "#d79921",
     workspaces = withScreens 2 $ map show [1..9],
     manageHook = insertPosition Below Newer <+> manageDocks <+> manageHook',
-    layoutHook = avoidStruts . smartBorders
-                 $ subTabbed layoutTall
+    layoutHook = boringWindows . avoidStruts . smartBorders
+                 $ layoutTall
                  ||| Mirror layoutTall
   }
   where
-    layoutTall = Tall 1 (3/100) (1/2)
+    layoutTall = subLayout [] (Simplest) $ Tall 1 (3/100) (1/2)
 
 barPP' = xmobarPP
   {
@@ -61,16 +63,24 @@ main = do
   conf' <- return conf' { logHook = logHook' barPP' h }
   xmonad . ewmh $ conf'
     `additionalKeysP` (++)
-    [
-      ("<XF86AudioRaiseVolume>", spawn "amixer sset Master 2%+"),
-      ("<XF86AudioLowerVolume>", spawn "amixer sset Master 2%-"),
-      ("<XF86AudioMute>", spawn "amixer sset Master toggle"),
-      ("<Print>", spawn "maim | xclip -selection clipboard -t image/png"),
-      ("S-<Print>", spawn "maim -s | xclip -selection clipboard -t image/png"),
-      ("M-p", spawn "rofi -show run"),
-      ("M-z", spawn "emacsclient -c"),
-      ("M-S-z", spawn "emacsclient -s xmonad -c ~/dotfiles/xmonad.hs"),
-      ("M-b", sendMessage ToggleStruts)
+    [ ("<XF86AudioRaiseVolume>", spawn "amixer sset Master 2%+")
+    , ("<XF86AudioLowerVolume>", spawn "amixer sset Master 2%-")
+    , ("<XF86AudioMute>", spawn "amixer sset Master toggle")
+    , ("<Print>", spawn "maim | xclip -selection clipboard -t image/png")
+    , ("S-<Print>", spawn "maim -s | xclip -selection clipboard -t image/png")
+    , ("M-p", spawn "rofi -show run")
+    , ("M-z", spawn "emacsclient -c")
+    , ("M-S-z", spawn "emacsclient -s xmonad -c ~/dotfiles/xmonad.hs")
+    , ("M-b", sendMessage ToggleStruts)
+    
+    , ("M-C-n", withFocused (sendMessage . UnMerge))
+    , ("M-C-j", withFocused (sendMessage . mergeDir W.focusDown'))
+    , ("M-C-k", withFocused (sendMessage . mergeDir W.focusUp'))
+    , ("M-C-l", onGroup W.focusDown')
+    , ("M-C-h", onGroup W.focusUp') 
+    , ("M-j", focusDown)
+    , ("M-k", focusUp)
+
     ]
     [
       (otherModMasks ++ "M-" ++ [key], windows $ onCurrentScreen action tag)
