@@ -16,4 +16,4 @@ executable xmonad
                      , containers
   -- hs-source-dirs:      lib
   default-language:    Haskell2010
-  ghc-options:         -Wall -fno-warn-missing-signatures -threaded
+  ghc-options:         -fno-warn-missing-signatures -threaded

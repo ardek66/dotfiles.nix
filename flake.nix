@@ -20,12 +20,17 @@
           xmonad = pkgs.haskellPackages.callCabal2nix "nixmonad" ./xmonad { };
           xmobar = pkgs.haskellPackages.xmobar;
           xmessage = pkgs.xorg.xmessage;
-
+          pstree = pkgs.pstree;
+          
           wrapper = pkgs.writeShellApplication {
             name = "xmonad-wrapper";
 
-            runtimeInputs = [ packages.xmonad packages.xmobar packages.xmessage ];
-            text = "xmonad";
+            runtimeInputs = [ packages.xmonad
+                              packages.xmobar
+                              packages.xmessage
+                              packages.pstree
+                            ];
+            text = "exec xmonad";
           };
           
         };
@@ -48,13 +53,15 @@
 
         devShell = pkgs.haskellPackages.shellFor {
           packages = p: [ packages.xmonad p.xmonad-contrib ];
-          buildInputs = with pkgs.haskellPackages;
+          buildInputs =
             [
-              cabal-install
-              ghcid
-              hlint
-              ormolu
-              haskell-language-server
+              (pkgs.haskellPackages.ghcWithPackages (p: [
+                p.cabal-install
+                p.ghcid
+                p.hlint
+                p.ormolu
+                p.haskell-language-server
+              ]))
             ];
         };
       });
