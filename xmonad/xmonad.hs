@@ -21,6 +21,7 @@ import XMonad
 import XMonad.Hooks.ManageDocks
     ( avoidStruts, docks, manageDocks, ToggleStruts(ToggleStruts) )
 
+import XMonad.Hooks.ManageHelpers ( (-?>), composeOne, isFullscreen, doFullFloat )
 import XMonad.Hooks.WindowSwallowing ( swallowEventHook ) 
 import XMonad.Hooks.DynamicLog
     ( def,
@@ -35,7 +36,7 @@ import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.InsertPosition
     ( insertPosition, Focus(Newer), Position(Below) )
 
-import XMonad.Hooks.EwmhDesktops ( ewmh )
+import XMonad.Hooks.EwmhDesktops ( ewmh, ewmhFullscreen )
 import XMonad.Util.Run ( hPutStrLn, spawnPipe )
 import XMonad.Util.EZConfig ( additionalKeysP )
 import XMonad.Layout.IndependentScreens
@@ -57,7 +58,7 @@ import XMonad.Util.WorkspaceCompare ( getSortByXineramaRule )
 import qualified XMonad.StackSet as W
 
 manageHook' =
-  composeAll [ ] --TODO: something
+  composeOne [ isFullscreen -?> doFullFloat ]
 
 conf' =
   docks def
@@ -107,7 +108,7 @@ main =
   do
     h <- spawnPipe "xmobar"
     conf' <- return conf' { logHook = logHook' barPP' h }
-    xmonad . ewmh $ conf'
+    xmonad . ewmhFullscreen . ewmh $ conf'
       `additionalKeysP` (++)
       [ ("<XF86AudioRaiseVolume>", spawn "amixer sset Master 2%+")
       , ("<XF86AudioLowerVolume>", spawn "amixer sset Master 2%-")
