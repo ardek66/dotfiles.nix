@@ -4,7 +4,7 @@ Config
     font =         "xft:JetBrainsMono Nerd Font:size=10:bold:antialias=true",
     bgColor =      "#282828",
     fgColor =      "#ebdbb2",
-    position =     Top,
+    position =     TopW L 90,
     border =       BottomB,
     borderColor =  "#222222",
 
@@ -34,5 +34,5 @@ Config
                              "--highs", ""
                             ] 600
     ],
-    template = " %UnsafeStdinReader%}{%alsa:default:Master% %battery% : %date%"
+    template = " %UnsafeStdinReader%}{%alsa:default:Master% %battery% : %date% "
    }
