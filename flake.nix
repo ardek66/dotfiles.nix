@@ -17,20 +17,10 @@
         }; in
       rec {
         packages = flake-utils.lib.flattenTree {
-          xmonad = pkgs.haskellPackages.callCabal2nix "nixmonad" ./xmonad { };
+          xmonadUnwrapped = pkgs.haskellPackages.callCabal2nix "nixmonad" ./xmonad { };
           xmobar = pkgs.haskellPackages.xmobar;
           xmessage = pkgs.xorg.xmessage;
           pstree = pkgs.pstree;
-          
-          wrapper = pkgs.runCommand "xmonad-wrapper" {
-            buildInputs = [ pkgs.makeWrapper ];
-          } ''
-            mkdir -p $out/bin;
-            cp ${packages.xmonad}/bin/xmonad $out/bin/xmonad-${pkgs.stdenv.hostPlatform.system};
-            wrapProgram $out/bin/xmonad-${pkgs.stdenv.hostPlatform.system} \
-                         --set XMONAD_XMOBAR "${packages.xmobar}/bin/xmobar" \
-                         --set XMONAD_XMESSAGE "${packages.xmessage}/bin/xmessage";
-            '';
         };
         
         nixosModule =
@@ -44,17 +34,33 @@
             };
 
             config = mkIf config.dotfiles.enable {
-              xsession.windowManager.command = "${packages.wrapper}/bin/xmonad-${pkgs.stdenv.hostPlatform.system}";
+              xsession.windowManager.command = "${
+                pkgs.writeScript "xmonad-wrapper"
+                  ''
+                  export XMONAD_XMOBAR="${packages.xmobar}/bin/xmobar";
+                  export XMONAD_XMESSAGE="${packages.xmessage}/bin/xmessage";
+                  exec $HOME/.xmonad/xmonad-${pkgs.stdenv.hostPlatform.system};
+                  ''
+              }";
+              
               home.file.".xmobarrc".source = ./xmonad/xmobarrc.hs;
+              home.file.".xmonad/xmonad-${pkgs.stdenv.hostPlatform.system}" = {
+                source = "${packages.xmonadUnwrapped}/bin/xmonad";
+                executable = true;
+                # onChange = ''
+                #          if [[ -v DISPLAY ]]; then
+                #             ${config.xsession.windowManager.command} --restart
+                #          fi
+                #          '';
+              };
             };
           };
 
         devShell = pkgs.haskellPackages.shellFor {
-          packages = p: [ packages.xmonad p.xmonad-contrib ];
+          packages = p: [ packages.xmonadUnwrapped p.xmonad-contrib ];
           buildInputs =
-            [
-              (pkgs.haskellPackages.ghcWithPackages (p: [
-                p.cabal-install
+            [ (pkgs.haskellPackages.ghcWithPackages (p:
+              [ p.cabal-install
                 p.ghcid
                 p.hlint
                 p.ormolu
