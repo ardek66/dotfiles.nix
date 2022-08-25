@@ -16,12 +16,12 @@ import XMonad
       Mirror(Mirror),
       Tall(Tall),
       className,
-      (=?) )
+      (=?), (-->), doFloat )
 
 import XMonad.Hooks.ManageDocks
     ( avoidStruts, docks, manageDocks, ToggleStruts(ToggleStruts) )
 
-import XMonad.Hooks.ManageHelpers ( (-?>), composeOne, isFullscreen, doFullFloat )
+import XMonad.Hooks.ManageHelpers ( (-?>), composeOne, isFullscreen, doFullFloat, transience )
 import XMonad.Hooks.WindowSwallowing ( swallowEventHook ) 
 import XMonad.Hooks.DynamicLog
     ( def,
@@ -47,7 +47,7 @@ import XMonad.Layout.IndependentScreens
       workspaces' )
 
 import XMonad.Layout.SubLayouts
-    ( mergeDir, onGroup, subLayout, GroupMsg(UnMerge) )
+    ( mergeDir, onGroup, subLayout, GroupMsg(UnMerge), pushWindow )
 
 import XMonad.Layout.NoBorders ( smartBorders )
 import XMonad.Layout.BoringWindows
@@ -56,9 +56,16 @@ import XMonad.Layout.BoringWindows
 import XMonad.Layout.Simplest ( Simplest(Simplest) )
 import XMonad.Util.WorkspaceCompare ( getSortByXineramaRule )
 import qualified XMonad.StackSet as W
+import XMonad.Actions.WindowGo (doF)
+import XMonad.Layout.WindowNavigation (Navigate(Go))
+import XMonad.Actions.Navigation2D (Direction2D(U))
+import System.Environment (getEnv)
 
 manageHook' =
-  composeOne [ isFullscreen -?> doFullFloat ]
+    composeOne [ transience
+               , className =? "QjackCtl" -?> doFloat
+               , isFullscreen -?> doFullFloat
+               ]
 
 conf' =
   docks def
@@ -106,7 +113,8 @@ screenLog =
 
 main =
   do
-    h <- spawnPipe "xmobar"
+    xmobar <- getEnv "XMONAD_XMOBAR"
+    h <- spawnPipe xmobar
     conf' <- return conf' { logHook = logHook' barPP' h }
     xmonad . ewmhFullscreen . ewmh $ conf'
       `additionalKeysP` (++)
@@ -118,8 +126,7 @@ main =
       , ("M-p", spawn "rofi -show run")
       , ("M-z", spawn "emacsclient -c")
       , ("M-S-z", spawn "emacsclient -s xmonad -c ~/dotfiles/xmonad.hs")
-      , ("M-b", sendMessage ToggleStruts)
-    
+      , ("M-b", sendMessage ToggleStruts)    
       , ("M-C-n", withFocused (sendMessage . UnMerge))
       , ("M-C-S-j", withFocused (sendMessage . mergeDir W.focusDown'))
       , ("M-C-S-k", withFocused (sendMessage . mergeDir W.focusUp'))

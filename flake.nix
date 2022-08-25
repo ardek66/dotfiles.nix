@@ -22,17 +22,15 @@
           xmessage = pkgs.xorg.xmessage;
           pstree = pkgs.pstree;
           
-          wrapper = pkgs.writeShellApplication {
-            name = "xmonad-wrapper";
-
-            runtimeInputs = [ packages.xmonad
-                              packages.xmobar
-                              packages.xmessage
-                              packages.pstree
-                            ];
-            text = "exec xmonad";
-          };
-          
+          wrapper = pkgs.runCommand "xmonad-wrapper" {
+            buildInputs = [ pkgs.makeWrapper ];
+          } ''
+            mkdir -p $out/bin;
+            cp ${packages.xmonad}/bin/xmonad $out/bin/xmonad-${pkgs.stdenv.hostPlatform.system};
+            wrapProgram $out/bin/xmonad-${pkgs.stdenv.hostPlatform.system} \
+                         --set XMONAD_XMOBAR "${packages.xmobar}/bin/xmobar" \
+                         --set XMONAD_XMESSAGE "${packages.xmessage}/bin/xmessage";
+            '';
         };
         
         nixosModule =
@@ -46,7 +44,7 @@
             };
 
             config = mkIf config.dotfiles.enable {
-              xsession.windowManager.command = "${packages.wrapper}/bin/xmonad-wrapper";
+              xsession.windowManager.command = "${packages.wrapper}/bin/xmonad-${pkgs.stdenv.hostPlatform.system}";
               home.file.".xmobarrc".source = ./xmonad/xmobarrc.hs;
             };
           };
