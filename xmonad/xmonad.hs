@@ -60,6 +60,7 @@ import XMonad.Actions.WindowGo (doF)
 import XMonad.Layout.WindowNavigation (Navigate(Go))
 import XMonad.Actions.Navigation2D (Direction2D(U))
 import System.Environment (getEnv)
+import XMonad.Util.Replace (replace)
 
 manageHook' =
     composeOne [ transience
@@ -113,6 +114,7 @@ screenLog =
 
 main =
   do
+    replace
     xmobar <- getEnv "XMONAD_XMOBAR"
     h <- spawnPipe xmobar
     conf' <- return conf' { logHook = logHook' barPP' h }
@@ -123,6 +125,7 @@ main =
       , ("<XF86AudioMute>", spawn "amixer sset Master toggle")
       , ("<Print>", spawn "maim | xclip -selection clipboard -t image/png")
       , ("S-<Print>", spawn "maim -s | xclip -selection clipboard -t image/png")
+      , ("M-q", spawn "xmonad --restart")
       , ("M-p", spawn "rofi -show run")
       , ("M-z", spawn "emacsclient -c")
       , ("M-S-z", spawn "emacsclient -s xmonad -c ~/dotfiles/xmonad.hs")

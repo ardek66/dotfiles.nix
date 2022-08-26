@@ -35,23 +35,25 @@
 
             config = mkIf config.dotfiles.enable {
               xsession.windowManager.command = "${
-                pkgs.writeScript "xmonad-wrapper"
-                  ''
-                  export XMONAD_XMOBAR="${packages.xmobar}/bin/xmobar";
-                  export XMONAD_XMESSAGE="${packages.xmessage}/bin/xmessage";
-                  exec $HOME/.xmonad/xmonad-${pkgs.stdenv.hostPlatform.system};
-                  ''
-              }";
+                pkgs.writeShellApplication {
+                  name = "xmonad-wrapper";
+                  runtimeInputs = [ packages.xmonadUnwrapped ];
+                  text =
+                    ''
+                    export XMONAD_XMOBAR="${packages.xmobar}/bin/xmobar";
+                    export XMONAD_XMESSAGE="${packages.xmessage}/bin/xmessage";
+                    export XMONAD_DATA_DIR="$HOME/.xmonad"
+                    export XMONAD_CONFIG_DIR="$HOME/.xmonad"
+                    export XMONAD_CACHE_DIR="$HOME/.xmonad"
+                    exec "$HOME/.xmonad/xmonad-${pkgs.stdenv.hostPlatform.system}";
+                    '';
+                }
+              }/bin/xmonad-wrapper";
               
               home.file.".xmobarrc".source = ./xmonad/xmobarrc.hs;
               home.file.".xmonad/xmonad-${pkgs.stdenv.hostPlatform.system}" = {
                 source = "${packages.xmonadUnwrapped}/bin/xmonad";
                 executable = true;
-                # onChange = ''
-                #          if [[ -v DISPLAY ]]; then
-                #             ${config.xsession.windowManager.command} --restart
-                #          fi
-                #          '';
               };
             };
           };
