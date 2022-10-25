@@ -1,76 +1,44 @@
 import XMonad
-    ( mod4Mask,
-      spawn,
-      withWindowSet,
-      (|||),
-      xmonad,
-      (<+>),
-      composeAll,
-      sendMessage,
-      windows,
-      withFocused,
-      Default(def),
-      XConfig(terminal, modMask, focusFollowsMouse, borderWidth,
-              normalBorderColor, focusedBorderColor, workspaces, manageHook,
-              layoutHook, logHook, handleEventHook),
-      Mirror(Mirror),
-      Tall(Tall),
-      className,
-      (=?), (-->), doFloat )
-
 import XMonad.Hooks.ManageDocks
-    ( avoidStruts, docks, manageDocks, ToggleStruts(ToggleStruts) )
-
-import XMonad.Hooks.ManageHelpers ( (-?>), composeOne, isFullscreen, doFullFloat, transience )
-import XMonad.Hooks.WindowSwallowing ( swallowEventHook )
+import XMonad.Hooks.ManageHelpers
+import XMonad.Hooks.WindowSwallowing
 import XMonad.Hooks.DynamicLog
-    ( def,
-      dynamicLogWithPP,
-      shorten,
-      wrap,
-      xmobarColor,
-      xmobarPP,
-      PP(ppCurrent, ppHiddenNoWindows, ppTitle, ppSort, ppOrder,
-         ppExtras, ppOutput) )
-
 import XMonad.Hooks.InsertPosition
-    ( insertPosition, Focus(Newer), Position(Below) )
-
-import XMonad.Hooks.EwmhDesktops ( ewmh, ewmhFullscreen )
-import XMonad.Util.Run ( hPutStrLn, spawnPipe )
-import XMonad.Util.EZConfig ( additionalKeysP )
+import XMonad.Hooks.EwmhDesktops
+import XMonad.Util.Run
+import XMonad.Util.EZConfig
 import XMonad.Layout.IndependentScreens
-    ( marshallPP,
-      onCurrentScreen,
-      whenCurrentOn,
-      withScreens,
-      workspaces' )
-
 import XMonad.Layout.SubLayouts
-    ( mergeDir, onGroup, subLayout, GroupMsg(UnMerge), pushWindow )
-
-import XMonad.Layout.NoBorders ( smartBorders )
+import XMonad.Layout.NoBorders
 import XMonad.Layout.BoringWindows
-    ( boringWindows, focusDown, focusUp )
 
-import XMonad.Layout.Simplest ( Simplest(Simplest) )
-import XMonad.Util.WorkspaceCompare ( getSortByXineramaRule )
-import qualified XMonad.StackSet as W
-import XMonad.Actions.WindowGo (doF)
-import XMonad.Layout.WindowNavigation (Navigate(Go))
-import XMonad.Actions.Navigation2D (Direction2D(U))
-import System.Environment (getEnv)
-import XMonad.Util.Replace (replace)
-import XMonad.Core ( X, WindowSet, Query)
-import System.IO (Handle)
-import Data.Semigroup (Endo)
-import XMonad.Layout.LayoutModifier (LayoutModifier)
+import XMonad.Layout.Simplest
+import XMonad.Util.WorkspaceCompare
+import qualified XMonad.StackSet as W hiding (focusUp, focusDown)
+import XMonad.Actions.WindowGo
+import XMonad.Layout.WindowNavigation
+import XMonad.Actions.Navigation2D
+import System.Environment
+import XMonad.Util.Replace
+import XMonad.Core
+import System.IO
+import Data.Semigroup
+import XMonad.Layout.LayoutModifier
+import XMonad.StackSet hiding (focusUp, focusDown)
+import XMonad.Actions.CycleWS
+import XMonad.Actions.TagWindows
+import XMonad.Layout.SimplestFloat
+import XMonad.Layout.Grid
 
 manageHook' :: Query (Endo WindowSet)
 manageHook' =
-    composeOne [ transience
-               , className =? "QjackCtl" -?> doFloat
+    composeOne [ className =? "yabridge-host.exe.so" -?> hasBorder False <+> doIgnore <+> doRaise
+               , className =? "yabridge-host-32.exe.so" -?> hasBorder False <+> doIgnore <+> doRaise
+               , transience
                , isFullscreen -?> doFullFloat
+               , isDialog -?> doCenterFloat
+               , className =? "QjackCtl" -?> doFloat
+               , className =? "REAPER" -?> hasBorder False
                ]
 barPP' :: PP
 barPP' =
@@ -114,11 +82,12 @@ main =
               , borderWidth = 3
               , normalBorderColor = "#1d2021"
               , focusedBorderColor = "#d79921"
-              , workspaces = withScreens 2 $ map show [1..9]
-              , manageHook = insertPosition Below Newer <+> manageDocks <+> manageHook'
+              , XMonad.Core.workspaces = withScreens 2 $ map show [1..9]
+              , manageHook = insertPosition Above Newer <+> manageDocks <+> manageHook'
               , layoutHook = boringWindows . avoidStruts . smartBorders
                              $ layoutTall
                              ||| Mirror layoutTall
+                             ||| Grid
               , handleEventHook = swallowEventHook (className =? "URxvt") (return True)
               , logHook = logHook' barPP' h
           }
@@ -141,7 +110,15 @@ main =
       , ("M-C-k", onGroup W.focusUp')
       , ("M-j", focusDown)
       , ("M-k", focusUp)
-
+      , ("M-=", nextWS)
+      , ("M--", prevWS)
+      , ("M-S-=", shiftToNext >> nextWS)
+      , ("M-S--", shiftToPrev >> prevWS)
+      , ("M-f", moveTo Next emptyWS)
+      , ("M-S-f", do t <- findWorkspace getSortByIndex Next emptyWS 1
+                     (windows . shift) t
+                     (windows . greedyView) t)
+      , ("M-\\", toggleWS)
       ]
       [ (otherModMasks ++ "M-" ++ [key], windows $ onCurrentScreen action tag)
       | (tag, key) <- zip (workspaces' conf') "123456789",
