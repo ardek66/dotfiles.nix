@@ -76,17 +76,17 @@ main =
     xmobar <- getEnv "XMONAD_XMOBAR"
     h <- spawnPipe xmobar
     let
-      layoutTall = subLayout [] Simplest $ Tall 1 (3/100) (1/2)
+      layoutTall = Tall 1 (3/100) (1/2)
       conf' = docks def
               { terminal = "urxvtc"
-              , modMask = mod4Mask -- optional: use Win key instead of Alt as MODi key
+              , modMask = mod4Mask -- optional: use Win key instead of Alt as MOD key
               , focusFollowsMouse = False
               , borderWidth = 3
               , normalBorderColor = "#1d2021"
               , focusedBorderColor = "#d79921"
               , XMonad.Core.workspaces = withScreens 2 $ map show [1..9]
               , manageHook = insertPosition End Newer <+> manageHook kdeConfig <+> manageHook'
-              , layoutHook = boringWindows . avoidStruts . smartBorders
+              , layoutHook = subTabbed . boringWindows . avoidStruts . smartBorders
                              $ layoutTall
                              ||| Mirror layoutTall
                              ||| Grid
