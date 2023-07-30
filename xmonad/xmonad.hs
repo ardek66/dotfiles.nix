@@ -78,7 +78,7 @@ main =
     let
       layoutTall = Tall 1 (3/100) (1/2)
       conf' = docks def
-              { terminal = "urxvtc"
+              { terminal = "konsole"
               , modMask = mod4Mask -- optional: use Win key instead of Alt as MODi key
               , focusFollowsMouse = False
               , borderWidth = 3
