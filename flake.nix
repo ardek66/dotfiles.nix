@@ -40,13 +40,14 @@
                   runtimeInputs = [ packages.xmonadUnwrapped ];
                   text =
                     ''
-                    export XMONAD_XMOBAR="${packages.xmobar}/bin/xmobar";
+                    export XMONAD_XMOBAR="/dev/null";
                     export XMONAD_XMESSAGE="${packages.xmessage}/bin/xmessage";
                     export XMONAD_DATA_DIR="$HOME/.xmonad"
                     export XMONAD_CONFIG_DIR="$HOME/.xmonad"
                     export XMONAD_CACHE_DIR="$HOME/.xmonad"
 		    export KDEWM="$HOME/.xmonad/xmonad-${pkgs.stdenv.hostPlatform.system}";
-		    /usr/bin/startplasma-x11 && $KDEWM
+                    $KDEWM &
+		    exec /usr/bin/startplasma-x11
                     '';
                 }
               }/bin/xmonad-wrapper";
