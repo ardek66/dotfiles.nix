@@ -40,6 +40,7 @@ manageHook' =
                , isDialog -?> doCenterFloat
                , className =? "QjackCtl" -?> doFloat
                , className =? "REAPER" -?> hasBorder False
+	       , className =? "plasmashell" -?> doFloat
                ]
 barPP' :: PP
 barPP' =
