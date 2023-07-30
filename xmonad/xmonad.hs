@@ -41,7 +41,6 @@ manageHook' =
                , className =? "QjackCtl" -?> doFloat
                , className =? "REAPER" -?> hasBorder False
 	       , className =? "plasmashell" -?> hasBorder False <+> doIgnore <+> doFloat
-               , className =? "krunner" -?> hasBorder False <+> doIgnore <+> doFloat
                ]
 barPP' :: PP
 barPP' =
@@ -102,7 +101,7 @@ main =
       , ("<Print>", spawn "maim | xclip -selection clipboard -t image/png")
       , ("S-<Print>", spawn "maim -s | xclip -selection clipboard -t image/png")
       , ("M-q", spawn "xmonad --restart")
-      , ("M-p", spawn "krunner")
+      , ("M-p", spawn "rofi -show run")
       , ("M-c", spawn "rofi -modi \"clipboard:greenclip print\" -show clipboard -run-command '{cmd}'")
       , ("M-z", spawn "emacsclient -c")
       , ("M-b", sendMessage ToggleStruts)
