@@ -85,7 +85,7 @@ main =
               , normalBorderColor = "#1d2021"
               , focusedBorderColor = "#d79921"
               , XMonad.Core.workspaces = withScreens 2 $ map show [1..9]
-              , manageHook = insertPosition Above Newer <+> manageHook kdeConfig <+> manageHook'
+              , manageHook = insertPosition End Newer <+> manageHook kdeConfig <+> manageHook'
               , layoutHook = boringWindows . avoidStruts . smartBorders
                              $ layoutTall
                              ||| Mirror layoutTall
