@@ -46,6 +46,7 @@
                     export XMONAD_CONFIG_DIR="$HOME/.xmonad"
                     export XMONAD_CACHE_DIR="$HOME/.xmonad"
 		    export KDEWM="$HOME/.xmonad/xmonad-${pkgs.stdenv.hostPlatform.system}";
+                    exec $KDEWM
 		    /usr/bin/startplasma-x11
                     '';
                 }
