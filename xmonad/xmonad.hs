@@ -1,4 +1,5 @@
 import XMonad
+import XMonad.Config.Kde
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.WindowSwallowing
@@ -71,7 +72,7 @@ main :: IO ()
 main =
   do
     replace
-    xmobar <- getEnv "XMONAD_XMOBAR"
+    ;; xmobar <- getEnv "XMONAD_XMOBAR"
     h <- spawnPipe xmobar
     let
       layoutTall = subLayout [] Simplest $ Tall 1 (3/100) (1/2)
@@ -83,7 +84,7 @@ main =
               , normalBorderColor = "#1d2021"
               , focusedBorderColor = "#d79921"
               , XMonad.Core.workspaces = withScreens 2 $ map show [1..9]
-              , manageHook = insertPosition Above Newer <+> manageDocks <+> manageHook'
+              , manageHook = insertPosition Above Newer <+> manageHook kdeConfig <+> manageHook'
               , layoutHook = boringWindows . avoidStruts . smartBorders
                              $ layoutTall
                              ||| Mirror layoutTall
