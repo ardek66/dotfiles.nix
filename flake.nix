@@ -40,6 +40,7 @@
                   runtimeInputs = [ packages.xmonadUnwrapped ];
                   text =
                     ''
+                    export XMONAD_XMOBAR=/dev/null
                     export XMONAD_XMESSAGE="${packages.xmessage}/bin/xmessage";
                     export XMONAD_DATA_DIR="$HOME/.xmonad"
                     export XMONAD_CONFIG_DIR="$HOME/.xmonad"

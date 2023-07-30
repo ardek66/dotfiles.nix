@@ -72,7 +72,7 @@ main :: IO ()
 main =
   do
     replace
-    ;; xmobar <- getEnv "XMONAD_XMOBAR"
+    xmobar <- getEnv "XMONAD_XMOBAR"
     h <- spawnPipe xmobar
     let
       layoutTall = subLayout [] Simplest $ Tall 1 (3/100) (1/2)
